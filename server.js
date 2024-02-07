@@ -18,6 +18,8 @@ app.use(cors(corsOptions));
 let patients;
 let doctors;
 let management;
+let AppointmentsCollection;
+let doctorsCollection;
 
 async function connect() {
     try {
@@ -28,8 +30,8 @@ async function connect() {
         patients = myDB.collection("patients");
         doctors = myDB.collection("doctors");
         management = myDB.collection("management");
-        const AppointmentsCollection = myDB.collection("Appointments");
-        const doctorsCollection = myDB.collection("doctors");
+        AppointmentsCollection = myDB.collection("Appointments");
+        doctorsCollection = myDB.collection("doctors");
 
         console.log("Connected to the database");
     } catch (err) {
@@ -208,54 +210,54 @@ app.get("/doctors", async (req, res) => {
     const cursor = doctorsCollection.find({});
     const doctors = await cursor.toArray();
     res.json(doctors);
-  });
-  // get all apprved doctors
-  app.get("/approvedDoctors", async (req, res) => {
+});
+// get all apprved doctors
+app.get("/approvedDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "true" });
     const doctors = await cursor.toArray();
     res.json(doctors);
-  });
-  // get all pending doctors
-  app.get("/pendingDoctors", async (req, res) => {
+});
+// get all pending doctors
+app.get("/pendingDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "false" });
     const doctors = await cursor.toArray();
     res.json(doctors);
-  });
-  // delete doctor
-  app.delete("/doctors/:id", async (req, res) => {
+});
+// delete doctor
+app.delete("/doctors/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await doctorsCollection.deleteOne(query);
     res.json(result);
-  });
-  // approve doctor
-  app.put("/approve/:id", async (req, res) => {
+});
+// approve doctor
+app.put("/approve/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     // make approved true
     const result = doctorsCollection.updateOne(query, { $set: { approved: "true" } });
     res.json(result);
-  });
-  // get doctor by email
-  app.get("/doctors/:email", async (req, res) => {
+});
+// get doctor by email
+app.get("/doctors/:email", async (req, res) => {
     const email = req.params.email;
     const cursor = doctorsCollection.find({ email });
     const doctor = await cursor.toArray();
     res.json(doctor);
-  });
+});
 
-  app.post("/appoinments", async (req, res) => {
+app.post("/appoinments", async (req, res) => {
     const appointment = req.body;
     const result = await AppointmentsCollection.insertOne(appointment);
     res.json(result);
-  });
-  app.get("/appointments", async (req, res) => {
+});
+app.get("/appointments", async (req, res) => {
     const cursor = AppointmentsCollection.find({});
     const appointments = await cursor.toArray();
     res.json(appointments);
-  });
-  
-  app.post("/doctors", async (req, res) => {
+});
+
+app.post("/doctors", async (req, res) => {
     // console.log('files', req.files)
     const doctor = req.body;
     // add image buffer
@@ -266,24 +268,24 @@ app.get("/doctors", async (req, res) => {
     doctor.image = imageBuffer;
     const result = await doctorsCollection.insertOne(doctor);
     res.json(result);
-  });
+});
 
-  // get patient by id
-  app.get('/patients/:id', async (req, res) => {
+// get patient by id
+app.get('/patients/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) }
     const result = await AppointmentsCollection.findOne(query)
     res.json(result);
-  })
-  // delete by id 
-  app.delete("/patients/:id", async (req, res) => {
+})
+// delete by id 
+app.delete("/patients/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await AppointmentsCollection.deleteOne(query);
     res.json(result);
-  });
+});
 
-  app.post('/patientDashboard', async (req, res) => {
+app.post('/patientDashboard', async (req, res) => {
     try {
         const existingUser = await patients.findOne({ username: req.body.username });
         console.log(existingUser);
