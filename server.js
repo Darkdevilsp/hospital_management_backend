@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId} = require('mongodb');
 const cors = require('cors');
 //const bcrypt = require('bcrypt');
 
@@ -206,16 +206,21 @@ app.post('/managementLogin', async (req, res) => {
     }
 });
 
-app.get("/doctors", async (req, res) => {
-    const cursor = doctorsCollection.find({});
-    const doctors = await cursor.toArray();
-    res.json(doctors);
+app.get("/getdoctors", async (req, res) => {
+    try {
+        const doctors = await doctorsCollection.find({}).toArray();
+        res.json(doctors);
+    } catch (error) {
+        console.error("Error fetching doctors:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
-// get all apprved doctors
+
+// get all approved doctors
 app.get("/approvedDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "true" });
     const doctors = await cursor.toArray();
-    res.json(doctors);
+    res.send(doctors);
 });
 // get all pending doctors
 app.get("/pendingDoctors", async (req, res) => {
@@ -246,10 +251,27 @@ app.get("/doctors/:email", async (req, res) => {
     res.json(doctor);
 });
 
-app.post("/appoinments", async (req, res) => {
-    const appointment = req.body;
-    const result = await AppointmentsCollection.insertOne(appointment);
-    res.json(result);
+app.post("/bookappointment", async (req, res) => {
+    const { patient,date, doctor, timeSlot } = req.body;
+
+    try {
+        const response=await AppointmentsCollection.insertOne({
+            patientName:patient,
+            date:date,
+            doctor:doctor,
+            time:timeSlot });
+        console.log(response.insertedId);
+        if(response)
+        {
+            res.send("Added successfully")
+        }
+        else{
+            res.send("Failed to book")
+        }
+    } catch (error) {
+        console.error("Error booking appointment:", error);
+      res.send("Failed to book")
+    }
 });
 app.get("/appointments", async (req, res) => {
     const cursor = AppointmentsCollection.find({});
