@@ -111,26 +111,18 @@ app.post('/doctorSignup', async (req, res) => {
 
 app.post('/managementSignup', async (req, res) => {
     try {
-        console.log(req.body);
-
-        // Check if the user with the given username already exists
         const alreadyUser = await management.findOne({ username: req.body.username });
 
         if (alreadyUser) {
-            // User with the same username already exists
             res.status(409).send('User already exists');
             return;
         }
-
-        // If the user does not exist, add to the database
         const result = await management.insertOne({
             name: req.body.name,
             username: req.body.username,
             password: req.body.password,
         });
-        console.log(result)
         if (result.acknowledged) {
-
             res.send('Added successfully');
         } else {
             res.status(500).send('Failed to add user');
@@ -216,13 +208,11 @@ app.get("/getdoctors", async (req, res) => {
     }
 });
 
-// get all approved doctors
 app.get("/approvedDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "true" });
     const doctors = await cursor.toArray();
     res.send(doctors);
 });
-// get all pending doctors
 app.get("/pendingDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "false" });
     const doctors = await cursor.toArray();
@@ -239,7 +229,6 @@ app.delete("/doctors/:id", async (req, res) => {
 app.put("/approve/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
-    // make approved true
     const result = doctorsCollection.updateOne(query, { $set: { approved: "true" } });
     res.json(result);
 });
@@ -292,14 +281,13 @@ app.post("/doctors", async (req, res) => {
     res.json(result);
 });
 
-// get patient by id
 app.get('/patients/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) }
     const result = await AppointmentsCollection.findOne(query)
     res.json(result);
 })
-// delete by id 
+
 app.delete("/patients/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
@@ -315,5 +303,33 @@ app.post('/patientDashboard', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get("/allAppointments", async (req, res) => {
+    try {
+        const appointments = await  AppointmentsCollection.find({}).toArray();
+        res.json(appointments);
+    } catch (error) {
+        console.error("Error fetching appointments:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+app.delete("/deleteAppointment", async (req, res) => {
+    const { id } = req.body;
+    console.log(id);
+    try {
+        const result = await AppointmentsCollection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 1) {
+            console.log(result);
+            res.json("Treated");
+        } else {
+            res.status(404).json("Appointment not found");
+        }
+    } catch (error) {
+        console.error("Error deleting appointment:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
