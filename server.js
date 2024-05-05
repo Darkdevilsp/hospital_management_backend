@@ -48,12 +48,9 @@ app.listen(PORT, () => {
 app.post('/patientSignup', async (req, res) => {
     try {
         console.log(req.body);
-
-        // Check if the user with the given username already exists
         const existingUser = await patients.findOne({ username: req.body.username });
 
         if (existingUser) {
-            // User with the same username already exists
             res.status(409).send('User already exists');
             return;
         }
@@ -79,35 +76,35 @@ app.post('/patientSignup', async (req, res) => {
 
 app.post('/doctorSignup', async (req, res) => {
     try {
-        console.log(req.body);
+        const { name, age, gender,email, phoneNo, address, designation } = req.body;
 
-        // Check if the user with the given username already exists
-        const newUser = await doctors.findOne({ username: req.body.username });
+        const existingDoctor = await doctors.findOne({ email });
 
-        if (newUser) {
-            // User with the same username already exists
-            res.status(409).send('User already exists');
-            return;
+        if (existingDoctor) {
+            return res.status(409).send('Doctor already exists');
         }
-
-        // If the user does not exist, add to the database
         const result = await doctors.insertOne({
-            name: req.body.name,
-            username: req.body.username,
-            password: req.body.password,
+            name:name,
+            age:age,
+            gender:gender,
+            email:email,
+            phoneNo:phoneNo,
+            address:address,
+            designation:designation,
+            status:"offline"
         });
-        console.log(result)
-        if (result.acknowledged) {
 
+        if (result.acknowledged) {
             res.send('Added successfully');
         } else {
-            res.status(500).send('Failed to add user');
+            res.status(500).send('Failed to add doctor');
         }
     } catch (error) {
         console.error('Error in /doctorSignup route:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 app.post('/managementSignup', async (req, res) => {
     try {
@@ -213,32 +210,37 @@ app.get("/approvedDoctors", async (req, res) => {
     const doctors = await cursor.toArray();
     res.send(doctors);
 });
+
 app.get("/pendingDoctors", async (req, res) => {
     const cursor = doctorsCollection.find({ approved: "false" });
     const doctors = await cursor.toArray();
     res.json(doctors);
 });
-// delete doctor
+
+
 app.delete("/doctors/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await doctorsCollection.deleteOne(query);
     res.json(result);
 });
-// approve doctor
+
+
 app.put("/approve/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = doctorsCollection.updateOne(query, { $set: { approved: "true" } });
     res.json(result);
 });
-// get doctor by email
+
+
 app.get("/doctors/:email", async (req, res) => {
     const email = req.params.email;
     const cursor = doctorsCollection.find({ email });
     const doctor = await cursor.toArray();
     res.json(doctor);
 });
+
 
 app.post("/bookappointment", async (req, res) => {
     const { patient,date, doctor, timeSlot } = req.body;
@@ -262,11 +264,14 @@ app.post("/bookappointment", async (req, res) => {
       res.send("Failed to book")
     }
 });
+
+
 app.get("/appointments", async (req, res) => {
     const cursor = AppointmentsCollection.find({});
     const appointments = await cursor.toArray();
     res.json(appointments);
 });
+
 
 app.post("/doctors", async (req, res) => {
     // console.log('files', req.files)
@@ -281,6 +286,7 @@ app.post("/doctors", async (req, res) => {
     res.json(result);
 });
 
+
 app.get('/patients/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) }
@@ -288,12 +294,14 @@ app.get('/patients/:id', async (req, res) => {
     res.json(result);
 })
 
+
 app.delete("/patients/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await AppointmentsCollection.deleteOne(query);
     res.json(result);
 });
+
 
 app.post('/patientDashboard', async (req, res) => {
     try {
@@ -305,6 +313,7 @@ app.post('/patientDashboard', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 app.get("/allAppointments", async (req, res) => {
     try {
