@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' http://localhost:4000/ml_model/Heart%20Disease/css/fonts/;">
+    <title>Heart Disease Predictor</title>
+   
+    <link href="{{url_for('static',filename='css/heart.css')}}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&display=swap" rel="stylesheet"> 
+
+</head>
+<body>
+    <div class="main">
+        <div class="divi">
+            <div>
+        <h1 class="header">Save Heart</h1>
+        <p>This website is designed for to predict CAD's by using ML</p>
+        </div>
+        <div class="box">
+        <form class="fo" action="/predict" method="POST">
+            <spam>Age :
+            <input type="number" id="age" name="age" >
+            </spam>
+            <spam><label for="sex">Sex:</label>
+                <!--<select id="sex" name="sex" required>
+                    <option value="0">Female</option>
+                    <option value="1">Male</option>
+                </select><br>-->
+                <input type="sex" id="sex" name="sex">
+            </spam>
+            <spam>CP :
+            <input type="number " id="cp" name="cp">
+            </spam>
+            <spam>trestbps  :
+            <input type="number " id="trestbps " name="trestbps ">
+             </spam>
+            <spam>chol :
+            <input type="number " id=">chol" name=">chol">
+            </spam>
+             <spam>fbs :
+            <input type="number " id="fbs " name="fbs ">
+            </spam>
+             <spam>restecg :
+            <input type="number " id="restecg " name="restecg ">
+             </spam>
+            <spam>thalach :
+            <input type="number " id="thalach" name="thalach">
+            </spam>
+            <spam>exang :
+            <input type="number " id="exang" name="exang">
+            </spam>
+            <spam>oldpeak :
+            <input type="number " id="oldpeak " name="oldpeak ">
+            </spam>
+            <spam>slope:
+            <input type="number " id="slope" name="slope">
+             </spam>
+            <spam>CA:
+            <input type="number " id="ca" name="ca">
+            </spam>
+            <spam>thal :
+             <input type="number " id="thal" name="thal">
+            </spam>  <br><br>
+          <div class="btn"> <input class="submit" type="submit" value="Predict">
+           <input class="reset"type="reset" value="reset"> </div>                                     
+        </form></div>
+
+
+        <button id="predict">Check_out</button>
+    </div>
+    <div class="side_img">
+        <img src="{{url_for('static',filename='css/img1.jpg')}}" alt="heart" width="75%" height="75%">
+    </div>
+   
+    
+   <script src="js/jquery.js"></script>
+   
+  
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+   <script>
+    $(document).ready(function(){
+      $("button").click(function(){
+        $("form").toggle("slow");
+      });
+      $("form").hide();
+    });
+   </script>
+</body>
+</html>

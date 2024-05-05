@@ -7,6 +7,8 @@ const cors = require('cors');
 const app = express();
 const PORT = 4000;
 
+app.use(express.static('public'));
+
 app.use(bodyParser.json());
 
 const corsOptions = {
@@ -40,6 +42,10 @@ async function connect() {
 }
 
 connect().then()
+
+app.get('/ml_model/Heart%20Disease/templates/', (req, res) => {
+    res.sendFile(__dirname + '/ml_model/Heart%20Disease/templates/index.html');
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

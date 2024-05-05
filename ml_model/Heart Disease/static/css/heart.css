@@ -1,0 +1,105 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 1000;
+}
+.divi{
+    width:50%;
+}
+.header{
+    font-size: 80px;
+    font-weight: 800;
+    text-align: center;
+
+    
+}
+p{
+    font-size:20px;
+    text-align: center;
+
+}
+.side_img{
+    width:50%;
+    height:40%;
+    
+}
+.main{
+    align-items: center;
+    
+    display: flex;
+    justify-content: space-around;
+    
+}
+button{
+    margin:20px;
+    height:50%;
+    width:20%;
+    position: relative;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 200px;
+    font-size: large;
+   font-weight: 500;
+   color: black;
+    transition: all 0.2s ease;
+}
+button:active{
+    transform: scale(0.96);
+}
+.fo{
+    width :50%;
+    justify-content:flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin:40px;
+    
+    
+    
+    
+}
+input{
+    justify-content:right;
+    width: 50px;
+    flex:1 0 140px;
+    
+
+}
+spam{
+    font-weight: 600;
+    justify-content: space-around;
+    margin-right: auto;
+    padding-right: 10px;
+    
+}
+.btn{
+    display:flex;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width:100%;
+}
+.submit,.reset{
+    width:35%;
+    margin:5px;
+    padding:10px;
+    
+   
+   
+}
+.submit:hover{
+    background-color:rgb(86, 83, 83);
+}
+.reset:hover{
+    background-color:rgb(86, 83, 83);
+}
+#predict{
+    background-color: #f39f5a;
+}
+#predict:hover{
+    background-color:#E8bcb9 ;
+
+}
