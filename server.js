@@ -96,6 +96,7 @@ app.post('/doctorSignup', async (req, res) => {
 
         if (result.acknowledged) {
             res.send('Added successfully');
+
         } else {
             res.status(500).send('Failed to add doctor');
         }
