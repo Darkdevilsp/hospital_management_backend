@@ -50,10 +50,10 @@ app.listen(PORT, () => {
 
 app.post('/patientSignup', async (req, res) => {
     try {
-        const { name, username,  email, phoneNo, address, bloodGroup,password, } = req.body;
+        const { name, email, phoneNo, address, bloodGroup,password, } = req.body;
 
-        // Check if the user with the given username already exists
-        const existingUser = await patients.findOne({ username });
+        console.log(req.body)
+        const existingUser = await patients.findOne({ email:email });
 
         if (existingUser) {
             // User with the same username already exists
@@ -239,27 +239,28 @@ app.get("/doctors/:email", async (req, res) => {
 
 
 app.post("/bookappointment", async (req, res) => {
-    const { patient,date, doctor, timeSlot } = req.body;
+    const { patientMail, date, doctor, timeSlot } = req.body;
 
     try {
-        const response=await AppointmentsCollection.insertOne({
-            patientName:patient,
-            date:date,
-            doctor:doctor,
-            time:timeSlot });
+        const response = await AppointmentsCollection.insertOne({
+            patientEmail: patientMail, // Changed from patientName to patientEmail
+            date: date,
+            doctor: doctor, // This should already be the doctor's email
+            time: timeSlot
+        });
+
         console.log(response.insertedId);
-        if(response)
-        {
-            res.send("Added successfully")
-        }
-        else{
-            res.send("Failed to book")
+        if (response.insertedId) {
+            res.send("Added successfully");
+        } else {
+            res.send("Failed to book");
         }
     } catch (error) {
         console.error("Error booking appointment:", error);
-      res.send("Failed to book")
+        res.send("Failed to book");
     }
 });
+
 
 
 app.get("/appointments", async (req, res) => {
