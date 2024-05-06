@@ -54,6 +54,7 @@ app.post('/patientSignup', async (req, res) => {
 
         // Check if the user with the given username already exists
         const existingUser = await patients.findOne({ username });
+        console.log(req.body);
 
         if (existingUser) {
             // User with the same username already exists
