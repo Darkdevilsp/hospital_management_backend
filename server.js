@@ -43,9 +43,6 @@ async function connect() {
 
 connect().then()
 
-app.get('/ml_model/Heart%20Disease/templates/', (req, res) => {
-    res.sendFile(__dirname + '/ml_model/Heart%20Disease/templates/index.html');
-});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -53,23 +50,27 @@ app.listen(PORT, () => {
 
 app.post('/patientSignup', async (req, res) => {
     try {
-        console.log(req.body);
-        const existingUser = await patients.findOne({ username: req.body.username });
+        const { name, username,  email, phoneNo, address, bloodGroup,password, } = req.body;
+
+        // Check if the user with the given username already exists
+        const existingUser = await patients.findOne({ username });
 
         if (existingUser) {
+            // User with the same username already exists
             res.status(409).send('User already exists');
             return;
         }
 
-        // If the user does not exist, add to the database
         const result = await patients.insertOne({
-            name: req.body.name,
-            username: req.body.username,
-            password: req.body.password,
+            name:name,
+            email:email,
+            phoneNo:phoneNo,
+            address:address,
+            bloodGroup:bloodGroup,
+            password:password
         });
-        console.log(result)
-        if (result.acknowledged) {
 
+        if (result.acknowledged) {
             res.send('Added successfully');
         } else {
             res.status(500).send('Failed to add user');
@@ -82,7 +83,7 @@ app.post('/patientSignup', async (req, res) => {
 
 app.post('/doctorSignup', async (req, res) => {
     try {
-        const { name, age, gender,email, phoneNo, address, designation } = req.body;
+        const { name, age, gender,email, phoneNo, address, designation,password } = req.body;
 
         const existingDoctor = await doctors.findOne({ email });
 
@@ -97,9 +98,9 @@ app.post('/doctorSignup', async (req, res) => {
             phoneNo:phoneNo,
             address:address,
             designation:designation,
-            status:"offline"
+            password:password
         });
-
+        console.log(result)
         if (result.acknowledged) {
             res.send('Added successfully');
 
@@ -139,7 +140,7 @@ app.post('/managementSignup', async (req, res) => {
 
 app.post('/patientLogin', async (req, res) => {
     try {
-        const existingUser = await patients.findOne({ username: req.body.username });
+        const existingUser = await patients.findOne({ email: req.body.email });
 
         if (existingUser) {
 
@@ -161,7 +162,7 @@ app.post('/patientLogin', async (req, res) => {
 
 app.post('/doctorLogin', async (req, res) => {
     try {
-        const existingUser = await doctors.findOne({ username: req.body.username });
+        const existingUser = await doctors.findOne({ email: req.body.email });
 
         if (existingUser) {
 
@@ -212,20 +213,8 @@ app.get("/getdoctors", async (req, res) => {
     }
 });
 
-app.get("/approvedDoctors", async (req, res) => {
-    const cursor = doctorsCollection.find({ approved: "true" });
-    const doctors = await cursor.toArray();
-    res.send(doctors);
-});
 
-app.get("/pendingDoctors", async (req, res) => {
-    const cursor = doctorsCollection.find({ approved: "false" });
-    const doctors = await cursor.toArray();
-    res.json(doctors);
-});
-
-
-app.delete("/doctors/:id", async (req, res) => {
+app.delete("/deleteDoctors/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await doctorsCollection.deleteOne(query);
