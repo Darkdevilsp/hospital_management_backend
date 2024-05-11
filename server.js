@@ -113,7 +113,6 @@ app.post('/doctorSignup', async (req, res) => {
     }
 });
 
-
 app.post('/managementSignup', async (req, res) => {
     try {
         const alreadyUser = await management.findOne({ username: req.body.username });
@@ -213,37 +212,12 @@ app.get("/getdoctors", async (req, res) => {
     }
 });
 
-
-app.delete("/deleteDoctors/:id", async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) };
-    const result = await doctorsCollection.deleteOne(query);
-    res.json(result);
-});
-
-
-app.put("/approve/:id", async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) };
-    const result = doctorsCollection.updateOne(query, { $set: { approved: "true" } });
-    res.json(result);
-});
-
-
-app.get("/doctors/:email", async (req, res) => {
-    const email = req.params.email;
-    const cursor = doctorsCollection.find({ email });
-    const doctor = await cursor.toArray();
-    res.json(doctor);
-});
-
-
 app.post("/bookappointment", async (req, res) => {
-    const { patientMail, date, doctor, timeSlot } = req.body;
-
+    const { patient, date, doctor, timeSlot } = req.body;
+    console.log(req.body)
     try {
         const response = await AppointmentsCollection.insertOne({
-            patientEmail: patientMail, // Changed from patientName to patientEmail
+            patientEmail: patient, // Changed from patientName to patientEmail
             date: date,
             doctor: doctor, // This should already be the doctor's email
             time: timeSlot
@@ -261,45 +235,6 @@ app.post("/bookappointment", async (req, res) => {
     }
 });
 
-
-
-app.get("/appointments", async (req, res) => {
-    const cursor = AppointmentsCollection.find({});
-    const appointments = await cursor.toArray();
-    res.json(appointments);
-});
-
-
-app.post("/doctors", async (req, res) => {
-    // console.log('files', req.files)
-    const doctor = req.body;
-    // add image buffer
-    const pic = req.files.image[0];
-    const picData = pic.data;
-    const encodedPic = picData.toString("base64");
-    const imageBuffer = Buffer.from(encodedPic, "base64");
-    doctor.image = imageBuffer;
-    const result = await doctorsCollection.insertOne(doctor);
-    res.json(result);
-});
-
-
-app.get('/patients/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) }
-    const result = await AppointmentsCollection.findOne(query)
-    res.json(result);
-})
-
-
-app.delete("/patients/:id", async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: ObjectId(id) };
-    const result = await AppointmentsCollection.deleteOne(query);
-    res.json(result);
-});
-
-
 app.post('/patientDashboard', async (req, res) => {
     try {
         const existingUser = await patients.findOne({ username: req.body.username });
@@ -311,26 +246,25 @@ app.post('/patientDashboard', async (req, res) => {
     }
 });
 
-
 app.get("/allAppointments", async (req, res) => {
     try {
-        const appointments = await  AppointmentsCollection.find({}).toArray();
-        res.json(appointments);
+        const appointments = await AppointmentsCollection.find({}).toArray();
+        res.send(appointments)
     } catch (error) {
         console.error("Error fetching appointments:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ success: false, error: "Internal server error" });
     }
 });
 
 
-app.delete("/deleteAppointment", async (req, res) => {
-    const { id } = req.body;
+app.delete("/deleteAppointment/:id", async (req, res) => {
+    const { id } = req.params; // Get appointment ID from URL parameter
     console.log(id);
     try {
         const result = await AppointmentsCollection.deleteOne({ _id: new ObjectId(id) });
         if (result.deletedCount === 1) {
             console.log(result);
-            res.json("Treated");
+            res.json("Deleted"); // Respond with "Deleted" upon successful deletion
         } else {
             res.status(404).json("Appointment not found");
         }
@@ -339,3 +273,49 @@ app.delete("/deleteAppointment", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+
+app.get("/patientdetails", async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email) {
+            return res.status(400).send("Email parameter is missing");
+        }
+
+        const existingUser = await patients.findOne({ email: email });
+        if (existingUser) {
+            return res.send(existingUser);
+        } else {
+            return res.status(404).send("No user found");
+        }
+    } catch (e) {
+        console.error("Error fetching details:", e);
+        return res.status(500).send("Internal server error");
+    }
+});
+
+app.put('/updatePatientDetails/:id', async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const updatedDetails = req.body;
+        const result = await patients.updateOne(
+            { _id:new ObjectId( patientId )},
+            { $set: {name: updatedDetails.name,
+                phoneNo:updatedDetails.phoneNo,
+                address:updatedDetails.address,
+                bloodGroup:updatedDetails.bloodGroup,
+                password:updatedDetails.password} }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.json(updatedDetails);
+        } else {
+            res.status(404).send('Patient not found');
+        }
+    } catch (error) {
+        console.error('Error updating patient details:', error);
+        res.status(500).send('Internal server error');
+    }
+});
+
+
