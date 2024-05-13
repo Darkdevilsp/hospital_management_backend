@@ -259,7 +259,6 @@ app.get("/allAppointments", async (req, res) => {
 
 app.delete("/deleteAppointment/:id", async (req, res) => {
     const { id } = req.params; // Get appointment ID from URL parameter
-    console.log(id);
     try {
         const result = await AppointmentsCollection.deleteOne({ _id: new ObjectId(id) });
         if (result.deletedCount === 1) {
@@ -319,3 +318,39 @@ app.put('/updatePatientDetails/:id', async (req, res) => {
 });
 
 
+app.get("/doctordetails", async (req, res) => {
+    try {
+        const email = req.query.email;
+        console.log(email)
+        if (!email) {
+            return res.status(400).send("Email parameter is missing");
+        }
+
+        const existingUser = await doctors.findOne({ email: email });
+        if (existingUser) {
+            return res.send(existingUser);
+        } else {
+            return res.status(404).send("No user found");
+        }
+    } catch (e) {
+        console.error("Error fetching details:", e);
+        return res.status(500).send("Internal server error");
+    }
+});
+
+app.delete("/deletedoctors/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await doctors.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 1) {
+            console.log(result);
+
+            res.send("Deleted"); // Respond with "Deleted" upon successful deletion
+        } else {
+            res.status(404).json("doctor not found");
+        }
+    } catch (error) {
+        console.error("Error deleting doctor:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
