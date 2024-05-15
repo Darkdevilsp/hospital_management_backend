@@ -354,3 +354,33 @@ app.delete("/deletedoctors/:id", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+app.get("/allpatients",async (req,res)=>{
+    try{
+        console.log("started")
+        const allpatients=await patients.find({}).toArray()
+        console.log(allpatients)
+        if (allpatients)
+        {
+            res.json(allpatients)
+        }
+    }
+    catch (e) {
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+})
+
+app.delete("/deletepatient/:id", async (req,res)=>{
+    try{
+        const {id} =req.params
+        const response =await patients.deleteOne({_id:new ObjectId(id)})
+        if (response.acknowledged)
+        {
+            res.send(response.acknowledged)
+        }
+    }
+    catch (e) {
+        res.send(false)
+        console.log(e)
+    }
+} )
